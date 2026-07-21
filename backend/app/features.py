@@ -59,9 +59,7 @@ def extract_features(self, file_path, duration=30):
         for i in range(mfcc.shape[0]):
             features.update(self.summarize_data(mfcc[i], f"mfcc_{i+1}"))
             features.update(self.summarize_data(mfcc_delta[i], f"mfcc_delta_{i+1}"))
-            features.update(
-                self.summarize_data(mfcc_delta_2[i], f"mfcc_delta_2_{i+1}")
-            )
+            features.update(self.summarize_data(mfcc_delta_2[i], f"mfcc_delta_2_{i+1}"))
 
         # spectral shape
         spectral_centroid = librosa.feature.spectral_centroid(
@@ -104,7 +102,9 @@ def extract_features(self, file_path, duration=30):
         harmonic_energy = float(np.sum(harmonic**2))
         percussive_energy = float(np.sum(percussive**2))
         total_energy = harmonic_energy + percussive_energy
-        features["harmonic_ratio"] = (harmonic_energy / total_energy if total_energy > 0 else 0.0)
+        features["harmonic_ratio"] = (
+            harmonic_energy / total_energy if total_energy > 0 else 0.0
+        )
 
         # energy and dynamics
         root_mean_square_value = librosa.feature.rms(y=raw_waveform)[0]
