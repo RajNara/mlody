@@ -1,5 +1,9 @@
+import os
 import random
 import requests
+import tempfile
+from app.extract_features import extract_features
+from models.schema import Track
 
 DEEZER_SEARCH_URL = "https://api.deezer.com/search"
 DEEZER_GENRE_URL = "https://api.deezer.com/genre"
@@ -46,15 +50,15 @@ def get_genre_chart_tracks(genre_id, limit=10):
 
         clean_tracks = []
         for item in raw_tracks:
-            clean_tracks.append(
-                {
-                    "trackId": item.get("id"),
-                    "trackName": item.get("title"),
-                    "artistName": item.get("artist", {}).get("name"),
-                    "artworkUrl100": item.get("album", {}).get("cover_medium"),
-                    "previewUrl": item.get("preview"),
-                }
+            track = Track(
+                track_id=str(item.get("id")),
+                name=item.get("title", ""),
+                artist=item.get("artist", {}).get("name", ""),
+                artwork_url=item.get("album", {}).get("cover_medium"),
+                preview_url=item.get("preview"),
             )
+            clean_tracks.append(track)
+
         return clean_tracks
 
     except Exception as e:
@@ -92,14 +96,10 @@ def get_candidate_pool(num_genres=6, tracks_per_genre=8, exclude_track_ids=None)
         tracks = get_genre_chart_tracks(genre["id"], limit=tracks_per_genre)
 
         for track in tracks:
-            track_id = track.get("trackId")
-
-            # Skip duplicates within this call, and skip anything the user
-            # already explicitly liked/disliked
-            if track_id in seen_ids or track_id in exclude_track_ids:
+            # Skip duplicates and skip anything the user already explicitly liked/disliked
+            if track.track_id in seen_ids or track.track_id in exclude_track_ids:
                 continue
-
-            seen_ids.add(track_id)
+            seen_ids.add(track.track_id)
             candidate_pool.append(track)
 
     return candidate_pool
@@ -126,12 +126,12 @@ def get_score(song, query_tokens, artist_tokens):
     artist overlap more heavily than title overlap.
     """
     # compare word for word against the original search query
-    title_tokens = set(song["trackName"].lower().split())
+    title_tokens = set(song.name.lower().split())
     title_score = len(query_tokens.intersection(title_tokens))
 
     artist_score = 0
     if artist_tokens:
-        song_artist_tokens = set(song["artistName"].lower().split())
+        song_artist_tokens = set(song.artist.lower().split())
         artist_score = len(artist_tokens.intersection(song_artist_tokens))
 
     # getting the right artist matters more than getting an exact title match
@@ -164,15 +164,14 @@ def search_tracks(name, artist=None, limit=3):
 
         clean_results = []
         for item in raw_results:
-            clean_results.append(
-                {
-                    "trackId": item.get("id"),
-                    "trackName": item.get("title"),
-                    "artistName": item.get("artist", {}).get("name"),
-                    "artworkUrl100": item.get("album", {}).get("cover_medium"),
-                    "previewUrl": item.get("preview"),
-                }
+            track = Track(
+                track_id=str(item.get("id")),
+                name=item.get("title", ""),
+                artist=item.get("artist", {}).get("name", ""),
+                artwork_url=item.get("album", {}).get("cover_medium"),
+                preview_url=item.get("preview"),
             )
+            clean_results.append(track)
 
         query_tokens = set(name.lower().split())
         artist_tokens = set(artist.lower().split()) if artist else set()
@@ -189,10 +188,40 @@ def search_tracks(name, artist=None, limit=3):
         return []
 
 
+def process_track_preview(track, duration=30):
+    """
+    Downloads a track's preview, coordinates feature extraction,
+    and ensures the file is deleted after.
+    """
+    if not track.preview_url:
+        print(f"No preview URL available for track {track.track_id}")
+        return None
+
+    tmp_path = None
+    try:
+        response = requests.get(track.preview_url, timeout=10)
+        response.raise_for_status()
+
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+            tmp.write(response.content)
+            tmp_path = tmp.name
+        features = extract_features(tmp_path, duration=duration)
+        if features is not None:
+            features["track_id"] = track.track_id
+
+        return features
+    except Exception as e:
+        print(f"Feature extraction failed for track {track.track_id}: {e}")
+        return None
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+
 if __name__ == "__main__":
     results = search_tracks("HUMBLE.", artist="Kendrick Lamar", limit=3)
     for r in results:
-        print(r["trackName"], "-", r["artistName"])
+        print(r.name, "-", r.artist)
 
     print("\n--- get available genres ---")
     genres = get_available_genres()
@@ -201,4 +230,15 @@ if __name__ == "__main__":
     print("\n--- candidate pool ---")
     pool = get_candidate_pool(num_genres=4, tracks_per_genre=5)
     for t in pool:
-        print(t["trackName"], "-", t["artistName"])
+        print(t.name, "-", t.artist)
+
+    print("\n--- testing feature extraction ---")
+    if results:
+        song = results[0]
+        print(f"Downloading and extracting features for: {song.name}...")
+        features = process_track_preview(song)
+        if features:
+            print(f"Success! Extracted {len(features)} features.")
+            print(f"Calculated Tempo: {features.get('tempo'):.2f} BPM")
+        else:
+            print("Feature extraction failed.")
