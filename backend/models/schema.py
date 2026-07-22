@@ -25,8 +25,6 @@ class QuizResponse(BaseModel):
 
 class TrainRequest(BaseModel):
     session_id: str
-    liked_track_ids: list[str]
-    disliked_track_ids: list[str]
 
 
 class TrainResponse(BaseModel):
@@ -49,3 +47,14 @@ class ScoredTrack(BaseModel):
 
 class ScoreResponse(BaseModel):
     scores: list[ScoredTrack]
+
+
+class SelectionRequest(BaseModel):
+    session_id: str
+    track: Track
+    liked: bool
+
+
+class SelectionResponse(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+    status: HTTPStatus

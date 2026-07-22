@@ -188,6 +188,28 @@ def search_tracks(name, artist=None, limit=3):
         return []
 
 
+def get_track_by_id(track_id):
+    """
+    Fetches one track directly by Deezer ID.
+    """
+    try:
+        response = requests.get(f"https://api.deezer.com/track/{track_id}", timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        if not data or data.get("error"):
+            return None
+        return Track(
+            track_id=str(data.get("id")),
+            name=data.get("title", ""),
+            artist=(data.get("artist") or {}).get("name", ""),
+            artwork_url=(data.get("album") or {}).get("cover_medium"),
+            preview_url=data.get("preview"),
+        )
+    except Exception as e:
+        print(f"Error fetching Deezer track {track_id}: {e}")
+        return None
+
+
 def process_track_preview(track, duration=30):
     """
     Downloads a track's preview, coordinates feature extraction,
