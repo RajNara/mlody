@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from http import HTTPStatus
+from pydantic import BaseModel, ConfigDict
 
 
 class Track(BaseModel):
@@ -29,8 +30,10 @@ class TrainRequest(BaseModel):
 
 
 class TrainResponse(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+
     session_id: str
-    status: str
+    status: HTTPStatus
     metrics: dict
 
 

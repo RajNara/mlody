@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 
 
-def rank_similar_to_dislikes(
+def rank_dislikes(
     disliked_feature_vectors, candidate_pool_feature_vectors, candidate_tracks, top_k=10
 ):
     """
