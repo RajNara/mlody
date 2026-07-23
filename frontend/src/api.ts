@@ -12,11 +12,11 @@ interface SearchResponse { results: Track[]; }
 interface QuizResponse { tracks: Track[]; }
 interface TrainResponse { session_id: string; status: string; metrics: Record<string, unknown>; }
 
-export async function searchTracks(query: string, limit = 3): Promise<Track[]> {
+export async function searchTracks(query: string, artist = '', limit = 3): Promise<Track[]> {
   const res = await fetch(`${API_BASE}/search`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query, limit }),
+    body: JSON.stringify({ query, artist: artist || null, limit }),
   });
   if (!res.ok) throw new Error(`Search failed: ${res.status}`);
   return (await res.json() as SearchResponse).results;

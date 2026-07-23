@@ -12,6 +12,7 @@ class Track(BaseModel):
 
 class SearchRequest(BaseModel):
     query: str
+    artist: str | None = None
     limit: int = 10
 
 

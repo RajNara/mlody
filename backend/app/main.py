@@ -36,7 +36,14 @@ def health():
 
 @app.post("/search", response_model=SearchResponse)
 def search(request: SearchRequest):
-    results = search_tracks(request.query, limit=request.limit)
+    song_name = request.query.strip()
+    artist_name = (request.artist or "").strip() or None
+
+    if song_name and artist_name:
+        results = search_tracks(song_name, artist=artist_name, limit=request.limit)
+    elif song_name and not artist_name:
+        results = search_tracks(song_name, limit=request.limit)
+
     return SearchResponse(results=results)
 
 
