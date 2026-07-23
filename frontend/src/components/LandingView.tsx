@@ -31,10 +31,8 @@ export default function LandingView({ onStart }: Props) {
   ];
 
   return (
-    // Removed overflow-x-hidden from the main wrapper as it can break IntersectionObserver for scroll animations
     <div className="relative bg-black text-white min-h-screen font-sans selection:bg-purple-500 selection:text-white">
       
-      {/* Floating Music Notes */}
       {floatingNotes.map((note) => (
         <motion.div
           key={note.id}
@@ -47,13 +45,11 @@ export default function LandingView({ onStart }: Props) {
         </motion.div>
       ))}
 
-      {/* Hero Section */}
       <section className="h-screen flex flex-col items-center justify-center relative overflow-hidden">
         <motion.div 
           initial="hidden" animate="visible" variants={fadeUp}
           className="z-10 text-center flex flex-col items-center"
         >
-          {/* Removed font-extrabold to use Sniglet's regular, less aggressive weight */}
           <h1 
             className="text-6xl md:text-8xl mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-400 drop-shadow-lg px-4 pb-4 leading-normal"
             style={{ fontFamily: "'Sniglet', system-ui, cursive" }}
@@ -71,7 +67,6 @@ export default function LandingView({ onStart }: Props) {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none" />
       </section>
 
-      {/* Problem Statement Section - Wrapped in overflow-hidden to prevent x-axis scrollbars locally */}
       <div className="overflow-hidden w-full">
         <section className="py-20 flex items-center justify-center px-6 relative z-10">
           <motion.div 
@@ -89,7 +84,6 @@ export default function LandingView({ onStart }: Props) {
         </section>
       </div>
 
-      {/* Features/Evolution Section */}
       <div className="overflow-hidden w-full">
         <section className="py-20 flex flex-col items-center justify-center px-6 relative z-10">
           <motion.div 
@@ -131,7 +125,6 @@ export default function LandingView({ onStart }: Props) {
         </section>
       </div>
 
-      {/* CTA Section */}
       <section className="py-20 flex flex-col items-center justify-center relative z-10">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
           <button 
@@ -144,7 +137,6 @@ export default function LandingView({ onStart }: Props) {
         </motion.div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-white/10 py-8 flex flex-col items-center text-gray-500 text-sm relative z-10">
         <p className="mb-4">&copy; 2026 MLody. All rights reserved.</p>
         
