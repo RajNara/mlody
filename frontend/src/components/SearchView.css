@@ -1,7 +1,6 @@
 .search-view {
   min-height: 100vh;
   background-color: var(--mlody-bg);
-  /* soft ambient glow in the corners, echoes the purple blur behind the landing hero */
   background-image: radial-gradient(circle at 12% 15%, rgba(121, 40, 202, 0.2), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(76, 210, 240, 0.14), transparent 45%);
   color: #eee;
@@ -9,6 +8,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  animation: searchViewFadeIn 0.7s ease-out;
+}
+
+@keyframes searchViewFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .search-view .page-header {
@@ -16,7 +21,6 @@
   margin-bottom: 32px;
 }
 
-/* toned down from the landing hero - this is a page subhead, not the main event */
 .search-view h1 {
   font-size: 1.75rem;
   margin: 0;
@@ -28,7 +32,6 @@
   font-size: 1rem;
 }
 
-/* two-field search row: song name + artist name, side by side with the submit button */
 .search-view .search-form {
   display: flex;
   gap: 10px;
@@ -65,8 +68,6 @@
   text-align: center;
 }
 
-/* results on the left, selections dashboard on the right - both visible on
-   one page, no separate step/modal */
 .search-view .content-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;

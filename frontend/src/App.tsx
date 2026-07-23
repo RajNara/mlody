@@ -1,13 +1,13 @@
 import { useState, type SetStateAction } from 'react';
 import LandingView from './components/LandingView';
+import IntroView from './components/IntroView';
 import SearchView from './components/SearchView';
 import QuizView from './components/QuizView';
 import CompleteView from './components/CompleteView';
 import { selectTrack, type Track } from './api';
 import './App.css';
 
-// mirrors the old Streamlit `profile_step` session state
-type ProfileStep = 'landing' | 'search' | 'quiz' | 'complete';
+type ProfileStep = 'landing' | 'intro' | 'search' | 'quiz' | 'complete';
 
 function App() {
   // one id per browser session, sent on every call so /select and /train
@@ -34,9 +34,6 @@ function App() {
     else setDislikedSongs((prev) => [...prev, track]);
   };
 
-  // NOTE: this only removes locally. The backend's SESSION_TRACKS still has
-  // the earlier /select call recorded — fine for now since nothing re-reads
-  // it until /train, but a real /deselect endpoint would close this gap.
   const handleRemove = (trackId: string, liked: boolean) => {
     if (liked) setLikedSongs((prev) => prev.filter((s) => s.track_id !== trackId));
     else setDislikedSongs((prev) => prev.filter((s) => s.track_id !== trackId));
@@ -47,7 +44,11 @@ function App() {
       {toast && <div className="toast" onClick={() => setToast(null)}>{toast}</div>}
 
       {step === 'landing' && (
-        <LandingView onStart={() => setStep('search')} />
+        <LandingView onStart={() => setStep('intro')} />
+      )}
+
+      {step === 'intro' && (
+        <IntroView onDone={() => setStep('search')} />
       )}
 
       {step === 'search' && (
