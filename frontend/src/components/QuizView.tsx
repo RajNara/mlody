@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getQuizTracks, selectTrack, trainModel, type Track } from '../api';
+import TrackPlayer from './TrackPlayer';
+import './QuizView.css';
 
 interface Props {
   sessionId: string;
@@ -33,25 +35,49 @@ function QuizView({ sessionId, onLike, onDislike, onDone }: Props) {
     onDone(result.metrics);
   };
 
-  if (loading) return <p>Loading quiz…</p>;
-  if (submitting) return <p>Calibrating your MLody…</p>;
-  if (tracks.length === 0) return <p>No quiz tracks available.</p>;
+  if (loading) {
+    return (
+      <div className="quiz-status-view">
+        <div className="quiz-status-spinner" />
+        <p>Loading quiz…</p>
+      </div>
+    );
+  }
+  if (submitting) {
+    return (
+      <div className="quiz-status-view">
+        <div className="quiz-status-spinner" />
+        <p>Calibrating your MLody…</p>
+      </div>
+    );
+  }
+  if (tracks.length === 0) {
+    return (
+      <div className="quiz-status-view">
+        <p>No quiz tracks available.</p>
+      </div>
+    );
+  }
 
   const current = tracks[index];
   const progress = ((index + 1) / tracks.length) * 100;
 
   return (
     <div className="quiz-view">
-      <h2>Calibration: Song {index + 1} of {tracks.length}</h2>
-      <div className="progress-bar"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
+      <div className="quiz-header">
+        <h2>Calibration: Song {index + 1} of {tracks.length}</h2>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+      </div>
 
-      <div className="quiz-card">
+      <div className="quiz-card glass-card">
         <h3>Do you like this song?</h3>
         <h1>{current.name}</h1>
         <p>{current.artist}</p>
-        {current.artwork_url && <img src={current.artwork_url} width={120} alt={current.name} />}
+        {current.artwork_url && <img src={current.artwork_url} alt={current.name} />}
         {current.preview_url
-          ? <audio controls autoPlay={index > 0} src={current.preview_url} />
+          ? <TrackPlayer src={current.preview_url} autoPlay={index > 0} />
           : <p className="empty-hint">No audio preview available.</p>}
       </div>
 

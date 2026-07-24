@@ -1,0 +1,116 @@
+.complete-view {
+  min-height: 100vh;
+  background-color: var(--mlody-bg);
+  background-image: radial-gradient(circle at 20% 20%, rgba(121, 40, 202, 0.2), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(76, 210, 240, 0.14), transparent 45%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  animation: completeFadeIn 0.7s ease-out;
+}
+
+@keyframes completeFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.complete-card {
+  max-width: 560px;
+  width: 100%;
+  padding: 48px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.complete-badge {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #050505, #0b1220);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  margin-bottom: 24px;
+}
+.complete-badge-check {
+  font-size: 34px;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--mlody-purple), var(--mlody-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.complete-view h1 {
+  font-size: 2.75rem;
+  margin: 0;
+  background: linear-gradient(90deg, var(--mlody-purple), var(--mlody-cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+}
+
+.complete-subtitle {
+  color: #cfcfcf;
+  margin-top: 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 420px;
+}
+
+.stats-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.stat-chip {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px 22px;
+  border-radius: 14px;
+  min-width: 100px;
+  text-align: center;
+}
+.stat-chip .value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+}
+.stat-chip .label {
+  font-size: 12px;
+  color: #9aa0a6;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.stat-chip-accent {
+  background: linear-gradient(90deg, var(--mlody-purple), var(--mlody-cyan));
+  border-color: transparent;
+}
+.stat-chip-accent .value,
+.stat-chip-accent .label {
+  color: #050505;
+}
+
+.complete-view .error-text {
+  color: #f87171;
+  margin-top: 22px;
+  font-size: 0.9rem;
+  max-width: 420px;
+}
+
+@media (max-width: 480px) {
+  .complete-card {
+    padding: 36px 24px;
+  }
+  .complete-view h1 {
+    font-size: 2.1rem;
+  }
+}

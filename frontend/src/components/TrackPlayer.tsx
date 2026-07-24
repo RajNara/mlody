@@ -4,6 +4,7 @@ import './TrackPlayer.css';
 
 interface Props {
   src: string;
+  autoPlay?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -15,7 +16,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-function TrackPlayer({ src }: Props) {
+function TrackPlayer({ src, autoPlay = false }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0); // 0–1
@@ -53,12 +54,27 @@ function TrackPlayer({ src }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setProgress(0);
+    setCurrentTime(0);
+    setDuration(0);
+
+    if (autoPlay) {
+      document.querySelectorAll<HTMLAudioElement>('audio[data-track-player]').forEach((el) => {
+        if (el !== audio) el.pause();
+      });
+      audio.play().catch(() => {
+      });
+    }
+  }, [src, autoPlay]);
+
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (audio.paused) {
-      // pause any other preview currently playing so only one plays at once
       document.querySelectorAll<HTMLAudioElement>('audio[data-track-player]').forEach((el) => {
         if (el !== audio) el.pause();
       });
