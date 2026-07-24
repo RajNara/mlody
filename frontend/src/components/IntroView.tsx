@@ -6,9 +6,9 @@ interface Props {
 }
 
 const MESSAGES = [
-  "Warming up your prediction engine...",
-  "Every smart prediction needs a starting beat.",
-  "Ready to build your MLody?"
+  "Time to personalize your music experience.",
+  "Tell us what belongs in your playlist, and what doesn't.",
+  "We'll learn your taste and recommend your next favorites."
 ];
 
 function IntroView({ onDone }: Props) {

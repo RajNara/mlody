@@ -52,3 +52,20 @@ export function IconSearch({ size = 18, className }: IconProps) {
     </svg>
   );
 }
+
+export function IconPlay({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <path d="M7 4.5v15a1 1 0 0 0 1.53.85l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z" />
+    </svg>
+  );
+}
+
+export function IconPause({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
+      <rect x="6" y="4.5" width="4.5" height="15" rx="1.2" />
+      <rect x="13.5" y="4.5" width="4.5" height="15" rx="1.2" />
+    </svg>
+  );
+}

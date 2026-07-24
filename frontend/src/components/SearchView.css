@@ -4,7 +4,7 @@
   background-image: radial-gradient(circle at 12% 15%, rgba(121, 40, 202, 0.2), transparent 42%),
     radial-gradient(circle at 88% 8%, rgba(76, 210, 240, 0.14), transparent 45%);
   color: #eee;
-  padding: 48px 24px 80px;
+  padding: 56px 24px 90px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,26 +18,29 @@
 
 .search-view .page-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+  max-width: 620px;
 }
 
 .search-view h1 {
-  font-size: 1.75rem;
+  font-size: 3rem;
   margin: 0;
+  line-height: 1.1;
 }
 
 .search-view .subtitle {
-  color: #888;
-  margin: 8px 0 0;
-  font-size: 1rem;
+  color: #9a9a9a;
+  margin: 14px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
 .search-view .search-form {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  max-width: 720px;
-  margin-bottom: 24px;
+  max-width: 520px;
+  margin-bottom: 44px;
 }
 
 .search-view .search-form input {
@@ -46,9 +49,9 @@
   background: rgba(255, 255, 255, 0.03);
   color: #ddd;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 0.85rem;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
@@ -60,31 +63,65 @@
   background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 0 3px rgba(76, 210, 240, 0.12);
 }
+.search-view .search-form button {
+  padding: 9px 18px;
+  font-size: 0.82rem;
+}
 
 .search-view .error-text {
   color: #f87171;
-  margin-bottom: 16px;
-  max-width: 720px;
+  margin-bottom: 20px;
+  max-width: 620px;
   text-align: center;
 }
 
-.search-view .content-grid {
+.search-view .build-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
-  gap: 28px;
+  grid-template-columns: 230px minmax(0, 1fr) 230px;
+  grid-template-areas: "dislikes results likes";
+  gap: 24px;
   width: 100%;
-  max-width: 1100px;
+  max-width: 1180px;
   align-items: start;
 }
+
 @media (max-width: 900px) {
-  .search-view .content-grid {
+  .search-view .build-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "results"
+      "likes"
+      "dislikes";
+    gap: 20px;
   }
 }
 
-.search-view .results-list {
-  display: flex;
-  flex-direction: column;
+.search-view .taste-column {
+  padding: 22px;
+}
+.search-view .taste-column-dislike { grid-area: dislikes; }
+.search-view .taste-column-like { grid-area: likes; }
+
+.search-view .taste-column-title {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.search-view .taste-column-title-dislike { color: #fb7185; }
+.search-view .taste-column-title-like { color: #34d399; }
+
+.search-view .results-column {
+  grid-area: results;
+  padding: 10px 20px;
+  min-height: 240px;
+}
+
+.search-view .results-placeholder {
+  padding: 46px 12px;
+  text-align: center;
+  font-size: 0.92rem;
 }
 
 .search-view .track-row {
@@ -92,8 +129,11 @@
   grid-template-columns: 56px 1fr auto auto;
   gap: 14px;
   align-items: center;
-  padding: 14px 4px;
+  padding: 16px 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.search-view .track-row:last-child {
+  border-bottom: none;
 }
 .search-view .track-row img {
   border-radius: 8px;
@@ -104,7 +144,7 @@
 .search-view .track-info {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
 }
 .search-view .track-info strong {
@@ -119,32 +159,7 @@
   color: #888;
   font-size: 0.82rem;
 }
-.search-view .track-info audio {
-  height: 30px;
-  margin-top: 4px;
-  max-width: 220px;
-}
 
-/* selections dashboard */
-.search-view .selections-panel {
-  padding: 24px;
-  position: sticky;
-  top: 24px;
-}
-.search-view .selections-panel h4 {
-  margin: 0 0 18px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-}
-.search-view .selections-panel h5 {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #999;
-  margin: 16px 0 6px;
-}
 .search-view .selection-row {
   display: flex;
   justify-content: space-between;
@@ -154,7 +169,7 @@
 }
 .search-view .selection-row span {
   color: #ddd;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -165,7 +180,6 @@
   font-size: 0.85rem;
 }
 
-.search-view .continue-btn {
-  width: 100%;
-  margin-top: 20px;
+.search-view .continue-btn-bottom {
+  margin-top: 44px;
 }
