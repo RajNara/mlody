@@ -1,34 +1,3 @@
-.pulse-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 9998;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.pulse-circle {
-  position: absolute;
-  border: 1px solid rgba(76, 210, 240, 0.4);
-  border-radius: 50%;
-  box-shadow: 0 0 50px rgba(121, 40, 202, 0.25);
-  animation: pulseRipple 10s linear infinite;
-  opacity: 0;
-}
-.pulse-1 { animation-delay: 0s; }
-.pulse-2 { animation-delay: 3.3s; }
-.pulse-3 { animation-delay: 6.6s; }
-
-@keyframes pulseRipple {
-  0% { width: 0; height: 0; opacity: 0.95; border-width: 6px; }
-  100% { width: 150vw; height: 150vw; opacity: 0; border-width: 0px; }
-}
-
 .intro-container {
   position: fixed;
   top: 0;
@@ -36,9 +5,13 @@
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: transparent;
+  gap: 22px;
+  background-color: var(--mlody-bg);
+  background-image: radial-gradient(circle at 15% 20%, rgba(121, 40, 202, 0.18), transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(76, 210, 240, 0.14), transparent 45%);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 9999;
@@ -54,7 +27,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   opacity: 0;
-  animation: fadeInOut 3s ease-in-out forwards;
+  animation: fadeInOut 3.6s ease-in-out forwards;
   margin: 0;
 }
 

@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Response
+from threading import Lock
+
+from fastapi import BackgroundTasks, FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from http import HTTPStatus
 from models.schema import (
@@ -7,6 +9,8 @@ from models.schema import (
     QuizResponse,
     TrainRequest,
     TrainResponse,
+    TrainStartResponse,
+    TrainProgressResponse,
     ScoreRequest,
     ScoreResponse,
     SelectionRequest,
@@ -28,6 +32,19 @@ app.add_middleware(
 
 SESSION_TRACKS = {}
 
+TRAIN_PROGRESS: dict[str, dict] = {}
+_progress_lock = Lock()
+
+
+def _set_progress(session_id, done, total, status="in_progress", metrics=None):
+    with _progress_lock:
+        TRAIN_PROGRESS[session_id] = {
+            "done": done,
+            "total": total,
+            "status": status,
+            "metrics": metrics,
+        }
+
 
 @app.get("/health")
 def health():
@@ -43,6 +60,8 @@ def search(request: SearchRequest):
         results = search_tracks(song_name, artist=artist_name, limit=request.limit)
     elif song_name and not artist_name:
         results = search_tracks(song_name, limit=request.limit)
+    else:
+        results = []
 
     return SearchResponse(results=results)
 
@@ -62,8 +81,97 @@ def select(request: SelectionRequest):
     return SelectionResponse(status=HTTPStatus.CREATED)
 
 
+def _run_training(session_id: str):
+    """
+    Runs the full training pipeline in the background and
+    reports progress as each track's audio features are extracted.
+    """
+    session_data = SESSION_TRACKS.get(session_id, {})
+    liked_tracks = session_data.get("liked", [])
+    disliked_tracks = session_data.get("disliked", [])
+
+    exclude_ids = {t.track_id for t in liked_tracks} | {
+        t.track_id for t in disliked_tracks
+    }
+    candidate_pool_tracks = get_candidate_pool(
+        num_genres=3, tracks_per_genre=5, exclude_track_ids=exclude_ids
+    )
+
+    total = len(liked_tracks) + len(disliked_tracks) + len(candidate_pool_tracks)
+    _set_progress(session_id, 0, total, status="in_progress")
+
+    feature_cache: dict[str, dict | None] = {}
+    done = {"count": 0}
+
+    def feature_extractor(track):
+        if track.track_id in feature_cache:
+            return feature_cache[track.track_id]
+
+        feats = process_track_preview(track)
+        if feats is not None:
+            feats.pop("track_id", None)
+        feature_cache[track.track_id] = feats
+
+        done["count"] += 1
+        _set_progress(session_id, done["count"], total, status="in_progress")
+        return feats
+
+    def to_vector(features):
+        return list(features.values())
+
+    disliked_vectors = []
+    for t in disliked_tracks:
+        feats = feature_extractor(t)
+        if feats:
+            disliked_vectors.append(to_vector(feats))
+
+    candidate_vectors = []
+    valid_candidates = []
+    for t in candidate_pool_tracks:
+        feats = feature_extractor(t)
+        if feats:
+            candidate_vectors.append(to_vector(feats))
+            valid_candidates.append(t)
+
+    similarity_negatives = rank_dislikes(
+        disliked_vectors, candidate_vectors, valid_candidates, top_k=10
+    )
+
+    try:
+        status, metrics = train_session_model(
+            session_id=session_id,
+            liked_tracks=liked_tracks,
+            disliked_tracks=disliked_tracks,
+            similarity_negatives=similarity_negatives,
+            feature_extractor=feature_extractor,
+        )
+    except Exception as e:
+        _set_progress(
+            session_id, done["count"], total, status="error", metrics={"reason": str(e)}
+        )
+        return
+
+    _set_progress(session_id, total, total, status="complete", metrics=metrics)
+
+
+@app.post("/train/start", response_model=TrainStartResponse)
+def start_train(request: TrainRequest, background_tasks: BackgroundTasks):
+    _set_progress(request.session_id, 0, 0, status="in_progress")
+    background_tasks.add_task(_run_training, request.session_id)
+    return TrainStartResponse(started=True)
+
+
+@app.get("/train/progress/{session_id}", response_model=TrainProgressResponse)
+def train_progress(session_id: str):
+    progress = TRAIN_PROGRESS.get(session_id)
+    if progress is None:
+        return TrainProgressResponse(done=0, total=0, status="not_started")
+    return TrainProgressResponse(**progress)
+
+
 @app.post("/train", response_model=TrainResponse)
 def train(request: TrainRequest, response: Response):
+    """Legacy call."""
     session_data = SESSION_TRACKS.get(request.session_id, {})
     liked_tracks = session_data.get("liked", [])
     disliked_tracks = session_data.get("disliked", [])

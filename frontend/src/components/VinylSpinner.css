@@ -1,0 +1,11 @@
+.vinyl-spinner {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
+  animation: vinylSpin 3.2s linear infinite;
+}
+
+@keyframes vinylSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

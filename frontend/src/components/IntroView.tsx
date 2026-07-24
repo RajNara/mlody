@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import VinylSpinner from './VinylSpinner';
 import './IntroView.css';
 
 interface Props {
@@ -24,20 +25,14 @@ function IntroView({ onDone }: Props) {
   }, [index, onDone]);
 
   return (
-    <>
-      <div className="pulse-container">
-        <div className="pulse-circle pulse-1" />
-        <div className="pulse-circle pulse-2" />
-        <div className="pulse-circle pulse-3" />
-      </div>
+    <div className="intro-container">
+      <VinylSpinner />
       {index < MESSAGES.length && (
-        <div className="intro-container">
-          <h1 key={index} className="intro-text">
-            {MESSAGES[index]}
-          </h1>
-        </div>
+        <h1 key={index} className="intro-text">
+          {MESSAGES[index]}
+        </h1>
       )}
-    </>
+    </div>
   );
 }
 

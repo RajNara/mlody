@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getQuizTracks, selectTrack, trainModel, type Track } from '../api';
+import { getQuizTracks, selectTrack, startTraining, pollTrainProgress, type Track } from '../api';
+import { IconThumbsUp, IconThumbsDown } from '../assets/Icons';
 import TrackPlayer from './TrackPlayer';
+import VinylSpinner from './VinylSpinner';
 import './QuizView.css';
 
 interface Props {
@@ -10,15 +12,29 @@ interface Props {
   onDone: (metrics: Record<string, unknown>) => void;
 }
 
+const BRIDGE_MESSAGES = [
+  "You've set a solid baseline.",
+  "Now, let's fine-tune your MLody.",
+  "React to these specific tracks to calibrate your taste."
+];
+
 function QuizView({ sessionId, onLike, onDislike, onDone }: Props) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(true);
+  const [messageIndex, setMessageIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [trainProgress, setTrainProgress] = useState({ done: 0, total: 0 });
 
   useEffect(() => {
-    getQuizTracks().then(setTracks).finally(() => setLoading(false));
+    getQuizTracks().then(setTracks).finally(() => setFetching(false));
   }, []);
+
+  useEffect(() => {
+    if (messageIndex >= BRIDGE_MESSAGES.length) return;
+    const timer = setTimeout(() => setMessageIndex((i) => i + 1), 3600);
+    return () => clearTimeout(timer);
+  }, [messageIndex]);
 
   const handleAnswer = async (liked: boolean) => {
     const current = tracks[index];
@@ -31,26 +47,55 @@ function QuizView({ sessionId, onLike, onDislike, onDone }: Props) {
     }
 
     setSubmitting(true);
-    const result = await trainModel(sessionId);
-    onDone(result.metrics);
+    setTrainProgress({ done: 0, total: 0 });
+    try {
+      await startTraining(sessionId);
+      const metrics = await pollTrainProgress(sessionId, setTrainProgress);
+      onDone(metrics);
+    } catch {
+      onDone({});
+    }
   };
 
-  if (loading) {
+  const showIntro = messageIndex < BRIDGE_MESSAGES.length || fetching;
+
+  if (showIntro) {
+    const currentMessage = messageIndex < BRIDGE_MESSAGES.length 
+      ? BRIDGE_MESSAGES[messageIndex] 
+      : "Loading your tracks...";
+
     return (
       <div className="quiz-status-view">
-        <div className="quiz-status-spinner" />
-        <p>Loading quiz…</p>
+        <VinylSpinner />
+        <h1 key={messageIndex} className="quiz-fade-text">
+          {currentMessage}
+        </h1>
       </div>
     );
   }
+
   if (submitting) {
+    const hasTotal = trainProgress.total > 0;
+    const percent = hasTotal ? (trainProgress.done / trainProgress.total) * 100 : 0;
     return (
       <div className="quiz-status-view">
-        <div className="quiz-status-spinner" />
-        <p>Calibrating your MLody…</p>
+        <VinylSpinner />
+        <p className="quiz-status-text">Calibrating your MLody </p>
+        <div className={`quiz-status-progress ${hasTotal ? 'determinate' : 'indeterminate'}`}>
+          <div
+            className="quiz-status-progress-fill"
+            style={hasTotal ? { width: `${percent}%` } : undefined}
+          />
+        </div>
+        {hasTotal && (
+          <p className="quiz-status-progress-label">
+            {trainProgress.done} / {trainProgress.total} tracks processed
+          </p>
+        )}
       </div>
     );
   }
+
   if (tracks.length === 0) {
     return (
       <div className="quiz-status-view">
@@ -82,8 +127,20 @@ function QuizView({ sessionId, onLike, onDislike, onDone }: Props) {
       </div>
 
       <div className="quiz-actions">
-        <button className="yes-btn" onClick={() => handleAnswer(true)}>💚 Yes</button>
-        <button className="no-btn" onClick={() => handleAnswer(false)}>👎 No</button>
+        <button
+          className="quiz-action-btn quiz-action-like"
+          onClick={() => handleAnswer(true)}
+          aria-label="Like"
+        >
+          <IconThumbsUp size={28} />
+        </button>
+        <button
+          className="quiz-action-btn quiz-action-dislike"
+          onClick={() => handleAnswer(false)}
+          aria-label="Dislike"
+        >
+          <IconThumbsDown size={28} />
+        </button>
       </div>
     </div>
   );

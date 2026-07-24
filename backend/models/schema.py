@@ -36,6 +36,17 @@ class TrainResponse(BaseModel):
     metrics: dict
 
 
+class TrainStartResponse(BaseModel):
+    started: bool
+
+
+class TrainProgressResponse(BaseModel):
+    done: int
+    total: int
+    status: str
+    metrics: dict | None = None
+
+
 class ScoreRequest(BaseModel):
     session_id: str
     track_ids: list[str]
