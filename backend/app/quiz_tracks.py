@@ -2,27 +2,55 @@ from app.deezer_utils import get_track_by_id, search_tracks
 
 QUIZ_SEED = [
     {
-        "name": "Levitating",
-        "artist": "Dua Lipa (feat. DaBaby)",
-        "deezer_id": 1124841752,
+        "name": "SICKO MODE",
+        "artist": "Travis Scott (feat. Drake)",
+        "deezer_id": 536752452,
     },
     {
-        "name": "The Less I Know the Better",
-        "artist": "Tame Impala",
-        "deezer_id": 103052662,
+        "name": "Blinding Lights",
+        "artist": "The Weeknd",
+        "deezer_id": 908604612,
     },
-    {"name": "HUMBLE.", "artist": "Kendrick Lamar", "deezer_id": 350171311},
-    {"name": "Pretty Girl", "artist": "Clairo", "deezer_id": 3422603071},
     {
-        "name": "Get Lucky",
-        "artist": "Daft Punk (feat. Pharrell Williams)",
-        "deezer_id": 67238735,
+        "name": "Seven Nation Army",
+        "artist": "The White Stripes",
+        "deezer_id": 1153182282,
     },
-    {"name": "Motion Sickness", "artist": "Phoebe Bridgers", "deezer_id": 397301582},
-    {"name": "Do I Wanna Know?", "artist": "Arctic Monkeys", "deezer_id": 70322130},
-    {"name": "Awake", "artist": "Tycho", "deezer_id": 71452919},
-    {"name": "I'm Not Alone", "artist": "Calvin Harris", "deezer_id": 69304060},
-    {"name": "bad guy", "artist": "Billie Eilish", "deezer_id": 655095912},
+    {
+        "name": "Strobe",
+        "artist": "deadmau5",
+        "deezer_id": 639320501,
+    },
+    {
+        "name": "Ain't No Sunshine",
+        "artist": "Bill Withers",
+        "deezer_id": 69877885,
+    },
+    {
+        "name": "Jolene",
+        "artist": "Dolly Parton",
+        "deezer_id": 1015887,
+    },
+    {
+        "name": "Take Five",
+        "artist": "The Dave Brubeck Quartet",
+        "deezer_id": 1031007,
+    },
+    {
+        "name": "Clair de Lune",
+        "artist": "Claude Debussy",
+        "deezer_id": 4540396,
+    },
+    {
+        "name": "Enter Sandman",
+        "artist": "Metallica",
+        "deezer_id": 136408134,
+    },
+    {
+        "name": "Three Little Birds",
+        "artist": "Bob Marley & The Wailers",
+        "deezer_id": 530300641,
+    },
 ]
 
 
