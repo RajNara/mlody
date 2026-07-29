@@ -70,3 +70,39 @@ class SelectionRequest(BaseModel):
 class SelectionResponse(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
     status: HTTPStatus
+
+
+class TrainingPoint(BaseModel):
+    track_id: str
+    track_name: str
+    artist: str
+    coordinates: list[float]
+    label: str
+
+
+class ComponentLoading(BaseModel):
+    feature: str
+    pc1_loading: float
+    pc2_loading: float
+
+
+class ComponentCoefficient(BaseModel):
+    component: int
+    coefficient: float
+
+
+class AxisInfo(BaseModel):
+    label: str
+    description: str
+
+
+class ModelVisualization(BaseModel):
+    training_points: list[TrainingPoint]
+    explained_variance: list[float]
+    cumulative_variance: list[float]
+    top_loadings_pc1: list[ComponentLoading]
+    top_loadings_pc2: list[ComponentLoading]
+    coefficients: list[ComponentCoefficient]
+    n_components: int
+    axes: list[AxisInfo]
+    graph_pairs: list[list[int]]

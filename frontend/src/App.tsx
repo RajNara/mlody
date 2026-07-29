@@ -4,10 +4,11 @@ import IntroView from './components/IntroView';
 import SearchView from './components/SearchView';
 import QuizView from './components/QuizView';
 import CompleteView from './components/CompleteView';
+import TasteMap from './components/TasteMap';
 import { selectTrack, type Track } from './api';
 import './App.css';
 
-type ProfileStep = 'landing' | 'intro' | 'search' | 'quiz' | 'complete';
+type ProfileStep = 'landing' | 'intro' | 'search' | 'quiz' | 'tastemap' | 'complete';
 
 function App() {
   // one id per browser session, sent on every call so /select and /train
@@ -66,8 +67,11 @@ function App() {
           sessionId={sessionId}
           onLike={(t: Track) => setLikedSongs((prev) => [...prev, t])}
           onDislike={(t: Track) => setDislikedSongs((prev) => [...prev, t])}
-          onDone={(metrics: SetStateAction<Record<string, unknown> | null>) => { setTrainMetrics(metrics); setStep('complete'); }}
+          onDone={(metrics) => { setTrainMetrics(metrics); setStep('tastemap'); }}
         />
+      )}
+      {step === 'tastemap' && (
+        <TasteMap sessionId={sessionId} onContinue={() => setStep('complete')} />
       )}
       {step === 'complete' && (
         <CompleteView

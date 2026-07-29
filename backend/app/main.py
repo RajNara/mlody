@@ -2,6 +2,7 @@ from threading import Lock
 
 from fastapi import BackgroundTasks, FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 from http import HTTPStatus
 from models.schema import (
     SearchRequest,
@@ -15,11 +16,13 @@ from models.schema import (
     ScoreResponse,
     SelectionRequest,
     SelectionResponse,
+    ModelVisualization,
 )
 from app.train_model import train_session_model
 from app.similarity import rank_dislikes
 from app.deezer_utils import search_tracks, get_candidate_pool, process_track_preview
 from app.quiz_tracks import get_quiz_tracks
+from app.train_model import SESSION_MODELS
 
 app = FastAPI(title="MLody API")
 app.add_middleware(
@@ -146,6 +149,9 @@ def _run_training(session_id: str):
             feature_extractor=feature_extractor,
         )
     except Exception as e:
+        import traceback
+
+        traceback.print_exc()
         _set_progress(
             session_id, done["count"], total, status="error", metrics={"reason": str(e)}
         )
@@ -226,3 +232,19 @@ def train(request: TrainRequest, response: Response):
 @app.post("/score", response_model=ScoreResponse)
 def score(request: ScoreRequest):
     return ScoreResponse(scores=[])
+
+
+@app.get("/train/visualization/{session_id}", response_model=ModelVisualization)
+def get_visualization(session_id: str):
+    session_data = SESSION_MODELS.get(session_id)
+    if session_data is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No trained model exists for this session — train first.",
+        )
+    if "visualization" not in session_data:
+        raise HTTPException(
+            status_code=404,
+            detail="Model exists but has no visualization data — retrain to regenerate it.",
+        )
+    return session_data["visualization"]

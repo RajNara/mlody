@@ -19,6 +19,43 @@ export interface TrainProgress {
   metrics?: Record<string, unknown> | null;
 }
 
+export interface AxisInfo {
+  label: string;
+  description: string;
+}
+
+export interface TrainingPoint {
+  track_id: string;
+  track_name: string;
+  artist: string;
+  coordinates: number[];
+  label: 'liked' | 'disliked';
+}
+
+export interface ComponentLoading {
+  feature: string;
+  pc1_loading: number;
+  pc2_loading: number;
+}
+
+export interface ModelVisualization {
+  training_points: TrainingPoint[];
+  explained_variance: number[];
+  cumulative_variance: number[];
+  top_loadings_pc1: ComponentLoading[];
+  top_loadings_pc2: ComponentLoading[];
+  coefficients: { component: number; coefficient: number }[];
+  n_components: number;
+  axes: AxisInfo[];
+  graph_pairs: number[][];
+}
+
+export async function getVisualization(sessionId: string): Promise<ModelVisualization> {
+  const res = await fetch(`${API_BASE}/train/visualization/${sessionId}`);
+  if (!res.ok) throw new Error(`Visualization fetch failed: ${res.status}`);
+  return res.json();
+}
+
 export async function searchTracks(query: string, artist = '', limit = 3): Promise<Track[]> {
   const res = await fetch(`${API_BASE}/search`, {
     method: 'POST',
