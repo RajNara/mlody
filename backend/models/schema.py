@@ -105,4 +105,24 @@ class ModelVisualization(BaseModel):
     coefficients: list[ComponentCoefficient]
     n_components: int
     axes: list[AxisInfo]
-    graph_pairs: list[list[int]]
+
+
+class Album(BaseModel):
+    album_id: str
+    title: str
+    artist: str
+    cover_url: str | None = None
+
+
+class AlbumSearchResponse(BaseModel):
+    albums: list[Album]
+
+
+class RankedTrack(BaseModel):
+    track: Track
+    like_probability: float | None = None
+
+
+class AlbumRankResponse(BaseModel):
+    album: Album
+    ranked_tracks: list[RankedTrack]

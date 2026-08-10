@@ -122,7 +122,7 @@ function QuizView({ sessionId, onLike, onDislike, onDone }: Props) {
         <p>{current.artist}</p>
         {current.artwork_url && <img src={current.artwork_url} alt={current.name} />}
         {current.preview_url
-          ? <TrackPlayer src={current.preview_url} autoPlay={index > 0} />
+          ? <TrackPlayer src={current.preview_url}  />
           : <p className="empty-hint">No audio preview available.</p>}
       </div>
 

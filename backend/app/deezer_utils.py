@@ -8,6 +8,77 @@ from models.schema import Track
 DEEZER_SEARCH_URL = "https://api.deezer.com/search"
 DEEZER_GENRE_URL = "https://api.deezer.com/genre"
 DEEZER_CHART_URL = "https://api.deezer.com/chart/{genre_id}/tracks"
+DEEZER_ALBUM_SEARCH_URL = "https://api.deezer.com/search/album"
+DEEZER_ALBUM_URL = "https://api.deezer.com/album/{album_id}"
+
+
+def search_albums(query, limit=8):
+    """
+    Searches Deezer for albums matching a free-text query.
+    """
+    params = {"q": query, "limit": limit}
+    try:
+        response = requests.get(DEEZER_ALBUM_SEARCH_URL, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+
+        albums = []
+        for item in data.get("data", []):
+            albums.append(
+                {
+                    "album_id": str(item.get("id")),
+                    "title": item.get("title", ""),
+                    "artist": (item.get("artist") or {}).get("name", ""),
+                    "cover_url": item.get("cover_medium"),
+                }
+            )
+        return albums
+
+    except Exception as e:
+        print(f"Error searching Deezer albums: {e}")
+        return []
+
+
+def get_album(album_id):
+    """
+    Fetches an album's metadata plus its full tracklist in one call.
+
+    Returns (album_dict, list[Track]) or (None, []) on failure.
+    """
+    url = DEEZER_ALBUM_URL.format(album_id=album_id)
+    try:
+        response = requests.get(url, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        if not data or data.get("error"):
+            return None, []
+
+        album = {
+            "album_id": str(data.get("id")),
+            "title": data.get("title", ""),
+            "artist": (data.get("artist") or {}).get("name", ""),
+            "cover_url": data.get("cover_medium"),
+        }
+
+        raw_tracks = (data.get("tracks") or {}).get("data", [])
+        tracks = []
+        for item in raw_tracks:
+            tracks.append(
+                Track(
+                    track_id=str(item.get("id")),
+                    name=item.get("title", ""),
+                    # per-track album tracklist entries don't always carry cover art,
+                    # so fall back to the album's cover
+                    artist=(item.get("artist") or {}).get("name") or album["artist"],
+                    artwork_url=album["cover_url"],
+                    preview_url=item.get("preview"),
+                )
+            )
+        return album, tracks
+
+    except Exception as e:
+        print(f"Error fetching Deezer album {album_id}: {e}")
+        return None, []
 
 
 def get_available_genres():

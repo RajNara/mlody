@@ -3,12 +3,12 @@ import LandingView from './components/LandingView';
 import IntroView from './components/IntroView';
 import SearchView from './components/SearchView';
 import QuizView from './components/QuizView';
-import CompleteView from './components/CompleteView';
 import TasteMap from './components/TasteMap';
+import AlbumRankView from './components/AlbumRankView';
 import { selectTrack, type Track } from './api';
 import './App.css';
 
-type ProfileStep = 'landing' | 'intro' | 'search' | 'quiz' | 'tastemap' | 'complete';
+type ProfileStep = 'landing' | 'intro' | 'search' | 'quiz' | 'tastemap' | 'albums';
 
 function App() {
   // one id per browser session, sent on every call so /select and /train
@@ -71,15 +71,9 @@ function App() {
         />
       )}
       {step === 'tastemap' && (
-        <TasteMap sessionId={sessionId} onContinue={() => setStep('complete')} />
+        <TasteMap sessionId={sessionId} onContinue={() => setStep('albums')} />
       )}
-      {step === 'complete' && (
-        <CompleteView
-          likeCount={likedSongs.length}
-          dislikeCount={dislikedSongs.length}
-          metrics={trainMetrics}
-        />
-      )}
+      {step === 'albums' && <AlbumRankView sessionId={sessionId} />}
     </div>
   );
 }

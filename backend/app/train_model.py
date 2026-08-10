@@ -69,13 +69,7 @@ _THEME_INFO = {
     },
 }
 
-MAX_AXES = 4
-# which dimension pairs to plot, depending on how many usable dimensions we have
-_GRAPH_PAIRS_BY_AXIS_COUNT = {
-    4: [(0, 1), (2, 3), (0, 2), (1, 3)],
-    3: [(0, 1), (0, 2), (1, 2)],
-    2: [(0, 1)],
-}
+N_VISUALIZATION_AXES = 2
 
 
 def _theme_weights_for_component(component_idx, pca, feature_names):
@@ -140,7 +134,7 @@ def _add_rows(
 
 
 def _build_visualization(X_scaled_rated, pca, model, labels, track_meta, feature_names):
-    n_axes = min(MAX_AXES, pca.n_components_)
+    n_axes = min(N_VISUALIZATION_AXES, pca.n_components_)
     reduced = pca.transform(X_scaled_rated)[:, :n_axes]
 
     training_points = [
@@ -176,7 +170,6 @@ def _build_visualization(X_scaled_rated, pca, model, labels, track_meta, feature
         {"label": _THEME_INFO[t]["label"], "description": _THEME_INFO[t]["description"]}
         for t in axis_themes
     ]
-    graph_pairs = _GRAPH_PAIRS_BY_AXIS_COUNT.get(n_axes, [(0, 1)])
 
     coefficients = [
         {"component": i, "coefficient": float(c)} for i, c in enumerate(model.coef_[0])
@@ -191,7 +184,6 @@ def _build_visualization(X_scaled_rated, pca, model, labels, track_meta, feature
         "coefficients": coefficients,
         "n_components": pca.n_components_,
         "axes": axes,
-        "graph_pairs": [list(pair) for pair in graph_pairs],
     }
 
 
@@ -283,3 +275,37 @@ def train_session_model(
         "train_accuracy": float(model.score(X_reduced, labels)),
     }
     return HTTPStatus.OK, metrics
+
+
+def score_tracks(session_id, tracks, feature_extractor):
+    """
+    Scores a list of tracks against a session's already-trained model.
+
+    Returns list[(Track, float | None)] in the same order as `tracks`,
+    or None if no trained model exists for this session yet.
+    """
+    session_data = SESSION_MODELS.get(session_id)
+    if session_data is None:
+        return None
+
+    model = session_data["model"]
+    scaler = session_data["scaler"]
+    pca = session_data["pca"]
+    feature_names = session_data["feature_names"]
+
+    results = []
+    for track in tracks:
+        features = feature_extractor(track)
+        if features is None:
+            results.append((track, None))
+            continue
+
+        # align to the exact column order the scaler/pca were fit on;
+        # any feature the extractor didn't produce falls back to 0
+        row = [[features.get(name, 0.0) for name in feature_names]]
+        X_scaled = scaler.transform(row)
+        X_reduced = pca.transform(X_scaled)
+        probability = float(model.predict_proba(X_reduced)[0][1])
+        results.append((track, probability))
+
+    return results

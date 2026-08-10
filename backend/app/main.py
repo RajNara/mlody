@@ -17,10 +17,20 @@ from models.schema import (
     SelectionRequest,
     SelectionResponse,
     ModelVisualization,
+    Album,
+    AlbumSearchResponse,
+    RankedTrack,
+    AlbumRankResponse,
 )
-from app.train_model import train_session_model
+from app.train_model import train_session_model, score_tracks
 from app.similarity import rank_dislikes
-from app.deezer_utils import search_tracks, get_candidate_pool, process_track_preview
+from app.deezer_utils import (
+    search_tracks,
+    get_candidate_pool,
+    process_track_preview,
+    search_albums,
+    get_album,
+)
 from app.quiz_tracks import get_quiz_tracks
 from app.train_model import SESSION_MODELS
 
@@ -248,3 +258,39 @@ def get_visualization(session_id: str):
             detail="Model exists but has no visualization data — retrain to regenerate it.",
         )
     return session_data["visualization"]
+
+
+@app.get("/albums/search", response_model=AlbumSearchResponse)
+def search_albums_route(query: str):
+    albums = search_albums(query, limit=8)
+    return AlbumSearchResponse(albums=[Album(**a) for a in albums])
+
+
+@app.get("/albums/{album_id}/rank", response_model=AlbumRankResponse)
+def rank_album(album_id: str, session_id: str):
+    album, tracks = get_album(album_id)
+    if album is None:
+        raise HTTPException(status_code=404, detail="Album not found.")
+    if not tracks:
+        raise HTTPException(status_code=404, detail="This album has no tracks to rank.")
+    if session_id not in SESSION_MODELS:
+        raise HTTPException(
+            status_code=404,
+            detail="No trained model exists for this session — train first.",
+        )
+
+    def feature_extractor(track):
+        feats = process_track_preview(track)
+        if feats is not None:
+            feats.pop("track_id", None)
+        return feats
+
+    scored = score_tracks(session_id, tracks, feature_extractor)
+
+    ranked = [RankedTrack(track=t, like_probability=p) for t, p in scored]
+    # highest probability first
+    ranked.sort(
+        key=lambda r: (r.like_probability is None, -(r.like_probability or 0.0))
+    )
+
+    return AlbumRankResponse(album=Album(**album), ranked_tracks=ranked)

@@ -121,22 +121,98 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== loadings grid (PC1 / PC2 side by side) ===== */
-.loadings-grid {
+.taste-map-main-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ddd;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: normal;
+  margin: -8px 0 12px;
+}
+
+.pca-explainer p {
+  color: #b8b8b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+.pca-explainer p:last-child { margin-bottom: 0; }
+.pca-explainer strong { color: #eee; }
+.pca-explainer em { color: var(--mlody-cyan); font-style: normal; }
+
+.loadings-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.loadings-toggle button {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #999;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.loadings-toggle button.active {
+  background: linear-gradient(120deg, var(--mlody-purple), var(--mlody-cyan));
+  border-color: transparent;
+  color: #050505;
+}
+
+.loadings-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.loadings-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.loadings-legend li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+.loadings-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.loadings-dot.pos { background: #4cd2f0; }
+.loadings-dot.neg { background: #7928ca; }
+.loadings-feature {
+  color: #ccc;
+  flex: 1;
+}
+.loadings-value {
+  color: #777;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+}
+
+.loadings-caption {
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: #888;
 }
 
 @media (max-width: 720px) {
-  .loadings-grid {
+  .loadings-panel {
     grid-template-columns: 1fr;
-  }
-  .taste-map-card {
-    padding: 22px 20px;
-  }
-  .taste-map-view h1 {
-    font-size: 2rem;
   }
 }
 
@@ -145,30 +221,6 @@
   margin-top: 12px;
 }
 
-.taste-map-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.taste-map-mini {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.taste-map-mini h3 {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #ddd;
-  text-transform: none;
-  letter-spacing: normal;
-  text-align: left;
-  margin: 0 0 8px;
-}
 
 .taste-map-graph-desc {
   margin-top: 10px;
@@ -188,8 +240,3 @@
   color: #ccc;
 }
 
-@media (max-width: 720px) {
-  .taste-map-grid {
-    grid-template-columns: 1fr;
-  }
-}

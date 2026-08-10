@@ -47,7 +47,37 @@ export interface ModelVisualization {
   coefficients: { component: number; coefficient: number }[];
   n_components: number;
   axes: AxisInfo[];
-  graph_pairs: number[][];
+}
+
+export interface Album {
+  album_id: string;
+  title: string;
+  artist: string;
+  cover_url?: string | null;
+}
+
+export interface RankedTrack {
+  track: Track;
+  like_probability: number | null;
+}
+
+export interface AlbumRankResponse {
+  album: Album;
+  ranked_tracks: RankedTrack[];
+}
+
+export async function searchAlbums(query: string): Promise<Album[]> {
+  const res = await fetch(`${API_BASE}/albums/search?query=${encodeURIComponent(query)}`);
+  if (!res.ok) throw new Error(`Album search failed: ${res.status}`);
+  return (await res.json() as { albums: Album[] }).albums;
+}
+
+export async function rankAlbum(albumId: string, sessionId: string): Promise<AlbumRankResponse> {
+  const res = await fetch(
+    `${API_BASE}/albums/${albumId}/rank?session_id=${encodeURIComponent(sessionId)}`,
+  );
+  if (!res.ok) throw new Error(`Album ranking failed: ${res.status}`);
+  return res.json();
 }
 
 export async function getVisualization(sessionId: string): Promise<ModelVisualization> {

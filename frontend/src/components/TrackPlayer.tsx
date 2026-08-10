@@ -4,7 +4,7 @@ import './TrackPlayer.css';
 
 interface Props {
   src: string;
-  autoPlay?: boolean;
+  volume?: number;
 }
 
 function formatTime(seconds: number): string {
@@ -16,12 +16,17 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-function TrackPlayer({ src, autoPlay = false }: Props) {
+function TrackPlayer({ src, volume = 0.3 }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0); // 0–1
+  const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+
+  const setAudioRef = (el: HTMLAudioElement | null) => {
+    audioRef.current = el;
+    if (el) el.volume = volume;
+  };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -56,19 +61,17 @@ function TrackPlayer({ src, autoPlay = false }: Props) {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (audio) audio.pause();
+    setIsPlaying(false);
     setProgress(0);
     setCurrentTime(0);
     setDuration(0);
+  }, [src]);
 
-    if (autoPlay) {
-      document.querySelectorAll<HTMLAudioElement>('audio[data-track-player]').forEach((el) => {
-        if (el !== audio) el.pause();
-      });
-      audio.play().catch(() => {
-      });
-    }
-  }, [src, autoPlay]);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) audio.volume = volume;
+  }, [volume]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -95,7 +98,7 @@ function TrackPlayer({ src, autoPlay = false }: Props) {
 
   return (
     <div className="track-player">
-      <audio ref={audioRef} src={src} preload="metadata" data-track-player />
+      <audio ref={setAudioRef} src={src} preload="metadata" data-track-player />
 
       <button
         type="button"
