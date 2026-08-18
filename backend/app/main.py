@@ -1,3 +1,4 @@
+import os
 from threading import Lock
 
 from fastapi import BackgroundTasks, FastAPI, Response
@@ -35,14 +36,14 @@ from app.quiz_tracks import get_quiz_tracks
 from app.train_model import SESSION_MODELS
 
 app = FastAPI(title="MLody API")
+origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 SESSION_TRACKS = {}
 
 TRAIN_PROGRESS: dict[str, dict] = {}
