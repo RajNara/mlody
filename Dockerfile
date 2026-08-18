@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir --only-binary=:all: -r requirements.txt --target 
 
 # Copy the backend application code
 COPY backend/ ${LAMBDA_TASK_ROOT}/
-CMD ["lambda_handler.handler"]
+CMD ["handler.lambda_handler.handler"]
