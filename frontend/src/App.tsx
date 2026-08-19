@@ -1,4 +1,4 @@
-import { useState, type SetStateAction } from 'react';
+import { useState } from 'react';
 import LandingView from './components/LandingView';
 import IntroView from './components/IntroView';
 import SearchView from './components/SearchView';
@@ -17,7 +17,6 @@ function App() {
   const [step, setStep] = useState<ProfileStep>('landing');
   const [likedSongs, setLikedSongs] = useState<Track[]>([]);
   const [dislikedSongs, setDislikedSongs] = useState<Track[]>([]);
-  const [trainMetrics, setTrainMetrics] = useState<Record<string, unknown> | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   // mirrors add_song() from initialize_user_model.py: a track can't be in
@@ -67,7 +66,7 @@ function App() {
           sessionId={sessionId}
           onLike={(t: Track) => setLikedSongs((prev) => [...prev, t])}
           onDislike={(t: Track) => setDislikedSongs((prev) => [...prev, t])}
-          onDone={(metrics) => { setTrainMetrics(metrics); setStep('tastemap'); }}
+          onDone={() => setStep('tastemap')}
         />
       )}
       {step === 'tastemap' && (
