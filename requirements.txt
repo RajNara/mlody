@@ -7,3 +7,4 @@ pandas>=2.2,<3.1
 scipy>=1.14,<1.18
 scikit-learn>=1.5,<1.10
 librosa>=0.10,<0.12
+soundfile>=0.12.1,<0.13
